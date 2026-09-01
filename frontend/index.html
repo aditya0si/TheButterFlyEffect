@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraMed — Cosmic Biomedical Knowledge Constellation & GraphRAG</title>
+  <meta name="description" content="AI-Powered 3D Cosmic Biomedical Knowledge Constellation & Multi-Agent GraphRAG SaaS Platform" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Top Navigation Header -->
+    <header class="saas-header">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <div class="pulsing-core"></div>
+          <span class="brand-name">AURA<span class="highlight">MED</span></span>
+        </div>
+        <div class="version-badge">Cosmic GraphRAG 3.0</div>
+      </div>
+
+      <!-- Mode Selector -->
+      <nav class="mode-nav" id="modeNav">
+        <button class="mode-btn active" data-mode="triage">
+          <span class="icon">🩺</span>
+          <span class="label">Symptom Checker</span>
+        </button>
+        <button class="mode-btn pro-mode hidden-mode" data-mode="drug_moa">
+          <span class="icon">🧪</span>
+          <span class="label">Drug MoA & Targets</span>
+        </button>
+        <button class="mode-btn pro-mode hidden-mode" data-mode="polypharmacy">
+          <span class="icon">💊</span>
+          <span class="label">Polypharmacy</span>
+        </button>
+        <button class="mode-btn pro-mode hidden-mode" data-mode="multi_omics">
+          <span class="icon">🧬</span>
+          <span class="label">Multi-Omics</span>
+        </button>
+        <button class="mode-btn pro-mode hidden-mode" data-mode="rare_disease">
+          <span class="icon">🔬</span>
+          <span class="label">Rare Diseases</span>
+        </button>
+        <button class="pro-toggle" id="proModeBtn" title="Show research & clinical modes">Pro</button>
+      </nav>
+
+      <!-- System Telemetry Badge -->
+      <div class="telemetry-section">
+        <div class="telemetry-pill">
+          <span class="status-dot"></span>
+          <span class="telemetry-text" id="telemetryStatus">AI Online · 2,097 Stars Active</span>
+        </div>
+        <button class="icon-btn" id="resetCamBtn" title="Reset Camera View">⟲ Reset Sky</button>
+      </div>
+    </header>
+
+    <!-- Main 3D WebGL Canvas Container -->
+    <main class="viewport-container">
+      <canvas id="constellationCanvas"></canvas>
+
+      <!-- Ambient Domain Legend Overlay -->
+      <div class="domain-legend" id="domainLegend">
+        <div class="legend-header">Galactic Sectors</div>
+        <div class="legend-items">
+          <div class="legend-item"><span class="legend-dot" style="background:#00dfd8"></span> Neurology</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ff007f"></span> Cardiology</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#8b00ff"></span> Oncology</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#3388ff"></span> Immunology</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ffaa00"></span> Gastrointestinal</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#d946ef"></span> Rare Genetics</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#ffffff"></span> Pharmacology</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#00ffaa"></span> Infectious</div>
+        </div>
+      </div>
+
+      <!-- Quick Preset Queries -->
+      <div class="quick-prompts" id="quickPrompts"></div>
+
+      <!-- Bottom Floating Search HUD -->
+      <div class="search-hud">
+        <form class="search-form" id="searchForm">
+          <div class="search-input-wrapper">
+            <span class="search-icon">✨</span>
+            <input 
+              type="text" 
+              id="queryInput" 
+              placeholder="Describe how you feel in your own words..." 
+              autocomplete="off"
+            />
+            <button type="button" class="voice-btn" id="voiceBtn" title="Voice Input">🎙️</button>
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <span>Trace Starpath</span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Simplified, Human-First Side Synthesis Panel -->
+      <aside class="synthesis-panel" id="synthesisPanel">
+        <div class="panel-header">
+          <div class="panel-title-group">
+            <span class="panel-tag" id="panelTag">YOUR RESULTS</span>
+            <h2 class="panel-headline" id="panelHeadline">Describe how you feel to light up the sky</h2>
+          </div>
+          <button class="close-panel-btn" id="closePanelBtn">×</button>
+        </div>
+
+        <div class="panel-body" id="panelBody">
+          <!-- Match Confidence Meter -->
+          <div class="confidence-meter-card" id="confidenceMeterCard">
+            <div class="meter-header">
+              <span class="meter-title">Pathway Alignment</span>
+              <span class="meter-value" id="meterValue">92%</span>
+            </div>
+            <div class="meter-bar-track">
+              <div class="meter-bar-fill" id="meterFill" style="width: 92%;"></div>
+            </div>
+          </div>
+
+          <!-- Red Flag Pill -->
+          <div class="red-flag-card" id="redFlagCard" style="display: none;">
+            <div class="red-flag-icon">🚨</div>
+            <div class="red-flag-content" id="redFlagContent"></div>
+          </div>
+
+          <!-- 1-Sentence Plain Verdict -->
+          <div class="plain-verdict-card">
+            <h4 class="card-subtitle">In Plain Words</h4>
+            <p class="plain-verdict-text" id="plainVerdictText">Type how you're feeling above and your personal star map will appear here.</p>
+          </div>
+
+          <!-- Interactive Pathway Timeline (Clicking a step focuses that star in 3D!) -->
+          <div class="pathway-section">
+            <div class="section-header-flex">
+              <h4 class="card-subtitle">Interactive Pathway (Click to Zoom)</h4>
+              <span class="step-hint">Click step to focus star</span>
+            </div>
+            <div class="pathway-steps-list" id="pathwayStepsContainer"></div>
+          </div>
+
+          <!-- Care Compass / Wellness Steps -->
+          <div class="care-section">
+            <h4 class="card-subtitle">Care Compass</h4>
+            <ul class="care-tips-list" id="careTipsList"></ul>
+          </div>
+
+          <!-- Educational Disclaimer -->
+          <div class="disclaimer-box" id="disclaimerBox">
+            ⚠️ <strong>Educational Triage:</strong> Traceable to peer-reviewed medical compendiums. Not for self-diagnosis.
+          </div>
+        </div>
+      </aside>
+
+      <!-- Deep Dive Node Inspector Modal / Drawer -->
+      <div class="node-inspector-backdrop" id="inspectorBackdrop"></div>
+      <div class="node-inspector-drawer" id="nodeInspector">
+        <div class="inspector-header">
+          <div class="node-type-badge" id="inspectorType">Symptom</div>
+          <h2 class="inspector-title" id="inspectorTitle">Unilateral Pulsatile Headache</h2>
+          <button class="close-inspector-btn" id="closeInspectorBtn">✕</button>
+        </div>
+
+        <div class="inspector-tabs">
+          <button class="tab-btn active" data-tab="overview">Overview</button>
+          <button class="tab-btn" data-tab="mechanism">Mechanism</button>
+          <button class="tab-btn" data-tab="connections">Connections (1-Hop)</button>
+          <button class="tab-btn" data-tab="references">Literature</button>
+        </div>
+
+        <div class="inspector-content">
+          <div class="tab-pane active" id="tabOverview">
+            <div class="property-grid">
+              <div class="prop-item"><span class="prop-label">Domain:</span> <span class="prop-val" id="propDomain">Neurology</span></div>
+              <div class="prop-item"><span class="prop-label">Severity:</span> <span class="prop-val" id="propSeverity">Normal</span></div>
+              <div class="prop-item"><span class="prop-label">Aliases:</span> <span class="prop-val" id="propAliases">throbbing pain, hemicrania</span></div>
+            </div>
+            <div class="inspector-summary" id="inspectorSummary">Loading description...</div>
+          </div>
+
+          <div class="tab-pane" id="tabMechanism">
+            <p class="tab-text" id="inspectorMechanism">Biochemical and physiological mechanisms extracted from Harrison's and Goodman & Gilman.</p>
+          </div>
+
+          <div class="tab-pane" id="tabConnections">
+            <div class="connections-list" id="inspectorConnections">Loading connected nodes...</div>
+          </div>
+
+          <div class="tab-pane" id="tabReferences">
+            <ul class="citation-list" id="inspectorReferences">Loading citations...</ul>
+          </div>
+        </div>
+
+        <div class="inspector-footer">
+          <button class="action-btn primary" id="focusNodeBtn">Focus Star</button>
+          <button class="action-btn secondary" id="triggerQueryFromNodeBtn">Expand In GraphRAG</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="src/constellation.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

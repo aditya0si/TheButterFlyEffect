@@ -1,0 +1,17 @@
+# Don't commit large binary DBs (regenerate from scripts)
+*.db
+*.sqlite
+*.sqlite3
+.env
+.env.local
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+node_modules/
+dist/
+.vercel/
+.playwright-mcp/
+*.egg-info/
+.idea/
+.vscode/
